@@ -14,6 +14,7 @@ import com.zabozhanov.chilly.MyActivity;
 import com.zabozhanov.chilly.R;
 
 import java.io.IOException;
+import java.util.Random;
 
 /**
  * Created with IntelliJ IDEA.
@@ -22,10 +23,11 @@ import java.io.IOException;
  * Time: 10:13
  * To change this template use File | Settings | File Templates.
  */
+
 public class ChillyService extends Service implements MediaPlayer.OnPreparedListener {
 
     private String _stream_url = "http://www.chilloungestation.com:8000/chilloungestation-playlist";
-    private MediaPlayer _player;
+    private MediaPlayer _player = null;
     private int NOTIFICATION = 1234;
     private NotificationManager _nm;
 
@@ -64,6 +66,7 @@ public class ChillyService extends Service implements MediaPlayer.OnPreparedList
         _paused = true;
     }
 
+
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
 
@@ -72,19 +75,30 @@ public class ChillyService extends Service implements MediaPlayer.OnPreparedList
         }
     }
 
+
+
     public void initPlayback(ChillyDelegate delegate) {
 
         this._delegate = delegate;
 
-        _player = new MediaPlayer();
-        try {
-            _player.setDataSource(_stream_url);
-        } catch (IOException e) {
+        if (_player == null) {
+
+            _player = new MediaPlayer();
+            try {
+                _player.setDataSource(_stream_url);
+            } catch (IOException e) {
+            }
+
+            _delegate.preparing();
+            _player.setOnPreparedListener(this);
+            _player.prepareAsync();
+        } else {
+
+            _delegate.preparing();
         }
-        _delegate.preparing();
-        _player.setOnPreparedListener(this);
-        _player.prepareAsync();
+
     }
+
 
 
 
@@ -98,6 +112,8 @@ public class ChillyService extends Service implements MediaPlayer.OnPreparedList
     public void onCreate() {
         _nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         showNotification();
+
+        Toast.makeText(this, String.valueOf(new Random().nextInt()), Toast.LENGTH_SHORT).show();
     }
 
     private void showNotification() {
@@ -129,6 +145,7 @@ public class ChillyService extends Service implements MediaPlayer.OnPreparedList
     @Override
     public void onDestroy() {
         _nm.cancel(NOTIFICATION);
+
         Toast.makeText(this, "ChillyService stopped", Toast.LENGTH_SHORT).show();
     }
 

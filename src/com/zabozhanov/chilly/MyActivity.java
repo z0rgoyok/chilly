@@ -19,7 +19,6 @@ public class MyActivity extends Activity implements View.OnClickListener, Chilly
 
     private Button _playButton;
     private TextView _statusView;
-    private Button _btnStopService;
 
 
     /**
@@ -31,14 +30,9 @@ public class MyActivity extends Activity implements View.OnClickListener, Chilly
         setContentView(R.layout.main);
         _playButton = (Button) findViewById(R.id.btnPlay);
         _playButton.setOnClickListener(this);
-        _btnStopService = (Button) findViewById(R.id.stop_service);
         _statusView = (TextView) findViewById(R.id.lblStatus);
 
-        if (_BoundService == null) {
-            doBindService();
-        } else {
-            _BoundService.setDelegate(this);
-        }
+        doBindService();
     }
 
     @Override
@@ -78,14 +72,15 @@ public class MyActivity extends Activity implements View.OnClickListener, Chilly
         _playButton.setEnabled(true);
     }
 
-    private static ChillyService _BoundService = null;
+    private  ChillyService _BoundService = null;
     private Boolean _IsBound = false;
 
     private ServiceConnection mConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
             _BoundService = ((ChillyService.ChillyBinder)service).getService();
-            Toast.makeText(MyActivity.this, "Chilly connected", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Chilly connected", Toast.LENGTH_SHORT).show();
             _BoundService.initPlayback(MyActivity.this);
+            _BoundService.setDelegate(MyActivity.this);
         }
 
         public void onServiceDisconnected(ComponentName className) {
