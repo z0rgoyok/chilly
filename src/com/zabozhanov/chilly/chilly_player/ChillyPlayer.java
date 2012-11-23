@@ -1,8 +1,7 @@
-package com.zabozhanov.chilly;
+package com.zabozhanov.chilly.chilly_player;
 
 import android.content.Context;
 import android.media.MediaPlayer;
-import android.net.Uri;
 
 import java.io.IOException;
 
@@ -13,17 +12,17 @@ import java.io.IOException;
  * Time: 2:17
  * To change this template use File | Settings | File Templates.
  */
-public class ChillPlayer implements MediaPlayer.OnPreparedListener{
+public class ChillyPlayer implements MediaPlayer.OnPreparedListener{
 
     protected String _url;
     protected MediaPlayer _player;
     protected Context _context;
 
-    protected ChillPlayerDelegate _delegate;
+    protected ChillyPlayerDelegate _delegate;
 
     protected Boolean _isPaused = false;
 
-    public ChillPlayer(String url, Context context, ChillPlayerDelegate delegate)
+    public ChillyPlayer(String url, Context context, ChillyPlayerDelegate delegate)
     {
         this._url = url;
         _context = context;

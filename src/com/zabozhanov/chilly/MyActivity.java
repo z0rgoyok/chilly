@@ -6,13 +6,15 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import com.zabozhanov.chilly.chilly_player.ChillyPlayer;
+import com.zabozhanov.chilly.chilly_player.ChillyPlayerDelegate;
 
-public class MyActivity extends Activity implements View.OnClickListener, ChillPlayerDelegate {
+public class MyActivity extends Activity implements View.OnClickListener, ChillyPlayerDelegate {
 
     protected Button _playButton;
     protected TextView _statusView;
     protected boolean  _playing = true;
-    protected ChillPlayer _player = null;
+    protected ChillyPlayer _player = null;
 
     /**
      * Called when the activity is first created.
@@ -28,7 +30,7 @@ public class MyActivity extends Activity implements View.OnClickListener, ChillP
         _statusView = (TextView) findViewById(R.id.lblStatus);
         try {
             if (_player == null) {
-                _player = new ChillPlayer("http://www.chilloungestation.com:8000/chilloungestation-playlist", this, this);
+                _player = new ChillyPlayer("http://www.chilloungestation.com:8000/chilloungestation-playlist", this, this);
                 _player.play();
             }
         } catch (Exception e) {

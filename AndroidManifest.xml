@@ -14,5 +14,6 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <service android:name=".chilly_player.ChillyService" android:label="ChillyService"/>
     </application>
 </manifest> 

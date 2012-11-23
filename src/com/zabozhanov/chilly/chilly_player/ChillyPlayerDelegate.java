@@ -1,4 +1,4 @@
-package com.zabozhanov.chilly;
+package com.zabozhanov.chilly.chilly_player;
 
 /**
  * Created with IntelliJ IDEA.
@@ -7,7 +7,7 @@ package com.zabozhanov.chilly;
  * Time: 3:35
  * To change this template use File | Settings | File Templates.
  */
-public interface ChillPlayerDelegate {
+public interface ChillyPlayerDelegate {
     void preparingStart();
     void preparingFinish();
     void paused();
