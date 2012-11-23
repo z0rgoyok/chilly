@@ -4,12 +4,11 @@ package com.zabozhanov.chilly.chilly_player;
  * Created with IntelliJ IDEA.
  * User: denis
  * Date: 23.11.12
- * Time: 3:35
+ * Time: 10:15
  * To change this template use File | Settings | File Templates.
  */
-public interface ChillyPlayerDelegate {
-    void preparingStart();
-    void preparingFinish();
+public interface ChillyDelegate {
+    void playing();
+    void preparing();
     void paused();
-    void error(String msg);
 }

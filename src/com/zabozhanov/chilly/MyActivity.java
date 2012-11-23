@@ -1,20 +1,26 @@
 package com.zabozhanov.chilly;
 
 import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import com.zabozhanov.chilly.chilly_player.ChillyPlayer;
-import com.zabozhanov.chilly.chilly_player.ChillyPlayerDelegate;
+import android.widget.Toast;
+import com.zabozhanov.chilly.chilly_player.ChillyDelegate;
+import com.zabozhanov.chilly.chilly_player.ChillyService;
 
-public class MyActivity extends Activity implements View.OnClickListener, ChillyPlayerDelegate {
+public class MyActivity extends Activity implements View.OnClickListener, ChillyDelegate {
 
-    protected Button _playButton;
-    protected TextView _statusView;
-    protected boolean  _playing = true;
-    protected ChillyPlayer _player = null;
+    private Button _playButton;
+    private TextView _statusView;
+    private Button _btnStopService;
+
 
     /**
      * Called when the activity is first created.
@@ -23,18 +29,15 @@ public class MyActivity extends Activity implements View.OnClickListener, Chilly
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-
         _playButton = (Button) findViewById(R.id.btnPlay);
         _playButton.setOnClickListener(this);
-
+        _btnStopService = (Button) findViewById(R.id.stop_service);
         _statusView = (TextView) findViewById(R.id.lblStatus);
-        try {
-            if (_player == null) {
-                _player = new ChillyPlayer("http://www.chilloungestation.com:8000/chilloungestation-playlist", this, this);
-                _player.play();
-            }
-        } catch (Exception e) {
-            _statusView.setText("creating err: " + e.getMessage() + e.toString());
+
+        if (_BoundService == null) {
+            doBindService();
+        } else {
+            _BoundService.setDelegate(this);
         }
     }
 
@@ -46,35 +49,67 @@ public class MyActivity extends Activity implements View.OnClickListener, Chilly
 
     @Override
     public void onClick(View view) {
-        _playing = !_playing;
-        if (_playing) {
-            _playButton.setText("Pause");
-            _player.play();
-        } else {
-            _playButton.setText("Play");
-            _player.pause();
+        if (null != _BoundService) {
+            _BoundService.playPause();
         }
     }
 
-    @Override
-    public void preparingStart() {
-        _statusView.setText("Status: подготовка");
-        _playButton.setEnabled(false);
+    private void setStatus(String status) {
+        _statusView.setText("Status: "+ status);
     }
 
     @Override
-    public void preparingFinish() {
-        _statusView.setText("Status: проигрывание");
+    public void playing() {
+        setStatus("Playing");
+        _playButton.setText("Pause");
         _playButton.setEnabled(true);
     }
 
     @Override
-    public void paused() {
-        _statusView.setText("Status: пауза");
+    public void preparing() {
+        setStatus("Preparing");
+        _playButton.setEnabled(false);
     }
 
     @Override
-    public void error(String msg) {
-        _statusView.setText("error from player:" + msg);
+    public void paused() {
+        setStatus("Paused");
+        _playButton.setText("Play");
+        _playButton.setEnabled(true);
     }
+
+    private static ChillyService _BoundService = null;
+    private Boolean _IsBound = false;
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            _BoundService = ((ChillyService.ChillyBinder)service).getService();
+            Toast.makeText(MyActivity.this, "Chilly connected", Toast.LENGTH_SHORT).show();
+            _BoundService.initPlayback(MyActivity.this);
+        }
+
+        public void onServiceDisconnected(ComponentName className) {
+            _BoundService = null;
+        }
+    };
+
+    void doBindService() {
+        bindService(new Intent(MyActivity.this,
+                ChillyService.class), mConnection, Context.BIND_AUTO_CREATE);
+        _IsBound = true;
+    }
+
+    void doUnbindService() {
+        if (_IsBound) {
+            unbindService(mConnection);
+            _IsBound = false;
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        doUnbindService();
+        super.onDestroy();
+    }
+
 }
