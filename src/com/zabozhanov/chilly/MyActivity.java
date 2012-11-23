@@ -9,7 +9,9 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.view.Menu;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.zabozhanov.chilly.chilly_player.ChillyDelegate;
@@ -17,9 +19,12 @@ import com.zabozhanov.chilly.chilly_player.ChillyService;
 
 public class MyActivity extends Activity implements View.OnClickListener, ChillyDelegate {
 
-    private Button _playButton;
+    private ImageButton _playButton;
+    private ImageButton _pauseButton;
+
     private TextView _statusView;
 
+    private Boolean isPlaying = true;
 
     /**
      * Called when the activity is first created.
@@ -27,9 +32,18 @@ public class MyActivity extends Activity implements View.OnClickListener, Chilly
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //Remove title bar
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+
         setContentView(R.layout.main);
-        _playButton = (Button) findViewById(R.id.btnPlay);
+        _playButton = (ImageButton) findViewById(R.id.imgPlay);
         _playButton.setOnClickListener(this);
+
+        _pauseButton = (ImageButton) findViewById(R.id.imgPause);
+        _pauseButton.setOnClickListener(this);
+
         _statusView = (TextView) findViewById(R.id.lblStatus);
 
         doBindService();
@@ -43,6 +57,24 @@ public class MyActivity extends Activity implements View.OnClickListener, Chilly
 
     @Override
     public void onClick(View view) {
+
+        switch (view.getId()) {
+            case R.id.imgPause:
+            {
+                _pauseButton.setVisibility(View.GONE);
+                _playButton.setVisibility(View.VISIBLE);
+                break;
+            }
+            case R.id.imgPlay:
+            {
+                _playButton.setVisibility(View.GONE);
+                _pauseButton.setVisibility(View.VISIBLE);
+                break;
+            }
+        }
+
+        isPlaying = !isPlaying;
+
         if (null != _BoundService) {
             _BoundService.playPause();
         }
@@ -55,21 +87,18 @@ public class MyActivity extends Activity implements View.OnClickListener, Chilly
     @Override
     public void playing() {
         setStatus("Playing");
-        _playButton.setText("Pause");
-        _playButton.setEnabled(true);
+        _pauseButton.setEnabled(true);
     }
 
     @Override
     public void preparing() {
         setStatus("Preparing");
-        _playButton.setEnabled(false);
+        _pauseButton.setEnabled(false);
     }
 
     @Override
     public void paused() {
         setStatus("Paused");
-        _playButton.setText("Play");
-        _playButton.setEnabled(true);
     }
 
     private  ChillyService _BoundService = null;

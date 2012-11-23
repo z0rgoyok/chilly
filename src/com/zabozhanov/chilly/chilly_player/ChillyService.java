@@ -33,6 +33,8 @@ public class ChillyService extends Service implements MediaPlayer.OnPreparedList
 
     private Boolean _paused = false;
 
+    private Boolean _isPreparing = true;
+
     private ChillyDelegate _delegate = null;
     public ChillyDelegate get_delegate() {
         return _delegate;
@@ -48,6 +50,12 @@ public class ChillyService extends Service implements MediaPlayer.OnPreparedList
 
     public void setDelegate(ChillyDelegate delegate) {
         _delegate = delegate;
+
+        if (_isPreparing) {
+            _delegate.preparing();
+            return;
+        }
+
         if (_player.isPlaying()) {
             _delegate.playing();
         } else {
@@ -70,6 +78,7 @@ public class ChillyService extends Service implements MediaPlayer.OnPreparedList
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
 
+        _isPreparing = true;
         if (!_player.isPlaying()) {
             play();
         }

@@ -1,23 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
               android:layout_width="fill_parent"
               android:layout_height="fill_parent"
         >
-    <LinearLayout
+    <RelativeLayout
             android:orientation="vertical"
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent">
-        <Button
+            android:layout_height="fill_parent"
+            android:layout_alignParentBottom="true"
+            >
+        <LinearLayout android:layout_centerHorizontal="true" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                      android:layout_gravity="center"
+                      android:layout_alignParentBottom="true"
+                      android:orientation="vertical">
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Status: "
+                    android:layout_gravity="center" android:id="@+id/lblStatus"/>
+        <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Pause"
-                android:layout_gravity="center" android:minWidth="200dp" android:id="@id/btnPlay"/>
-        <TextView
+                android:id="@+id/imgPause" android:layout_gravity="center" android:baselineAlignBottom="false"
+                android:background="@drawable/pause" android:visibility="visible" android:clickable="false"
+
+                />
+        <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Status: "
-                android:layout_gravity="center" android:id="@id/lblStatus"/>
-    </LinearLayout>
-</LinearLayout>
+                android:id="@+id/imgPlay" android:background="@drawable/play" android:visibility="gone"/>
+        </LinearLayout>
+    </RelativeLayout>
+</RelativeLayout>
 
