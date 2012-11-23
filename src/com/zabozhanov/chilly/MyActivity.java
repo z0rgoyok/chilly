@@ -10,6 +10,7 @@ import android.os.IBinder;
 import android.view.Menu;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -35,6 +36,7 @@ public class MyActivity extends Activity implements View.OnClickListener, Chilly
 
         //Remove title bar
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 
         setContentView(R.layout.main);
@@ -81,24 +83,28 @@ public class MyActivity extends Activity implements View.OnClickListener, Chilly
     }
 
     private void setStatus(String status) {
-        _statusView.setText("Status: "+ status);
+        _statusView.setText( status);
     }
 
     @Override
     public void playing() {
-        setStatus("Playing");
+        setStatus("");
         _pauseButton.setEnabled(true);
+        _playButton.setVisibility(View.GONE);
+        _pauseButton.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void preparing() {
-        setStatus("Preparing");
+        setStatus("загрузка...");
         _pauseButton.setEnabled(false);
     }
 
     @Override
     public void paused() {
-        setStatus("Paused");
+        setStatus("");
+        _pauseButton.setVisibility(View.GONE);
+        _playButton.setVisibility(View.VISIBLE);
     }
 
     private  ChillyService _BoundService = null;
@@ -107,7 +113,7 @@ public class MyActivity extends Activity implements View.OnClickListener, Chilly
     private ServiceConnection mConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
             _BoundService = ((ChillyService.ChillyBinder)service).getService();
-            Toast.makeText(getApplicationContext(), "Chilly connected", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getApplicationContext(), "Chilly connected", Toast.LENGTH_SHORT).show();
             _BoundService.initPlayback(MyActivity.this);
             _BoundService.setDelegate(MyActivity.this);
         }

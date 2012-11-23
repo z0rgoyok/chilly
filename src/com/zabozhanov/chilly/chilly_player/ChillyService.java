@@ -77,8 +77,7 @@ public class ChillyService extends Service implements MediaPlayer.OnPreparedList
 
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
-
-        _isPreparing = true;
+        _isPreparing = false;
         if (!_player.isPlaying()) {
             play();
         }
@@ -120,9 +119,10 @@ public class ChillyService extends Service implements MediaPlayer.OnPreparedList
     @Override
     public void onCreate() {
         _nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        showNotification();
 
-        Toast.makeText(this, String.valueOf(new Random().nextInt()), Toast.LENGTH_SHORT).show();
+        //showNotification();
+
+        //Toast.makeText(this, String.valueOf(new Random().nextInt()), Toast.LENGTH_SHORT).show();
     }
 
     private void showNotification() {
@@ -155,7 +155,7 @@ public class ChillyService extends Service implements MediaPlayer.OnPreparedList
     public void onDestroy() {
         _nm.cancel(NOTIFICATION);
 
-        Toast.makeText(this, "ChillyService stopped", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "ChillyService stopped", Toast.LENGTH_SHORT).show();
     }
 
     @Override
