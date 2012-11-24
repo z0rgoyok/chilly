@@ -81,11 +81,12 @@ public class ChillyService extends Service implements MediaPlayer.OnPreparedList
 
     private void play() {
         _player.start();
+        _player.setVolume(1f, 1f);
         _delegate.playing();
         _paused = false;
     }
     protected void pause() {
-        _player.pause();
+        _player.setVolume(0f, 0f);
         _delegate.paused();
         _paused = true;
     }
@@ -205,6 +206,9 @@ public class ChillyService extends Service implements MediaPlayer.OnPreparedList
     @Override
     public void onDestroy() {
         _nm.cancel(NOTIFICATION);
+        _player.stop();
+        _player.release();
+
     }
 
     @Override
