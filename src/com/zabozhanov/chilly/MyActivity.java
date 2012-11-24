@@ -1,18 +1,31 @@
 package com.zabozhanov.chilly;
 
 import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.view.Menu;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
+import com.zabozhanov.chilly.chilly_player.ChillyDelegate;
+import com.zabozhanov.chilly.chilly_player.ChillyService;
 
-public class MyActivity extends Activity implements View.OnClickListener, ChillPlayerDelegate {
+public class MyActivity extends Activity implements View.OnClickListener, ChillyDelegate {
 
-    protected Button _playButton;
-    protected TextView _statusView;
-    protected boolean  _playing = true;
-    protected ChillPlayer _player = null;
+    private ImageButton _playButton;
+    private ImageButton _pauseButton;
+
+    private TextView _statusView;
+
+    private Boolean isPlaying = true;
 
     /**
      * Called when the activity is first created.
@@ -20,20 +33,24 @@ public class MyActivity extends Activity implements View.OnClickListener, ChillP
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
 
-        _playButton = (Button) findViewById(R.id.btnPlay);
+        //Remove title bar
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+
+        setContentView(R.layout.main);
+        _playButton = (ImageButton) findViewById(R.id.imgPlay);
         _playButton.setOnClickListener(this);
 
+        _pauseButton = (ImageButton) findViewById(R.id.imgPause);
+        _pauseButton.setOnClickListener(this);
+
         _statusView = (TextView) findViewById(R.id.lblStatus);
-        try {
-            if (_player == null) {
-                _player = new ChillPlayer("http://www.chilloungestation.com:8000/chilloungestation-playlist", this, this);
-                _player.play();
-            }
-        } catch (Exception e) {
-            _statusView.setText("creating err: " + e.getMessage() + e.toString());
-        }
+
+        startService(new Intent(this, ChillyService.class));
+
+        doBindService();
     }
 
     @Override
@@ -44,35 +61,96 @@ public class MyActivity extends Activity implements View.OnClickListener, ChillP
 
     @Override
     public void onClick(View view) {
-        _playing = !_playing;
-        if (_playing) {
-            _playButton.setText("Pause");
-            _player.play();
-        } else {
-            _playButton.setText("Play");
-            _player.pause();
+
+        switch (view.getId()) {
+            case R.id.imgPause:
+            {
+                _pauseButton.setVisibility(View.GONE);
+                _playButton.setVisibility(View.VISIBLE);
+                break;
+            }
+            case R.id.imgPlay:
+            {
+                _playButton.setVisibility(View.GONE);
+                _pauseButton.setVisibility(View.VISIBLE);
+                break;
+            }
+        }
+
+        isPlaying = !isPlaying;
+
+        if (null != _BoundService) {
+            _BoundService.playPause();
         }
     }
 
-    @Override
-    public void preparingStart() {
-        _statusView.setText("Status: подготовка");
-        _playButton.setEnabled(false);
+    private void setStatus(String status) {
+        _statusView.setText( status);
     }
 
     @Override
-    public void preparingFinish() {
-        _statusView.setText("Status: проигрывание");
-        _playButton.setEnabled(true);
+    public void playing() {
+        //setStatus("");
+        _pauseButton.setEnabled(true);
+        _playButton.setVisibility(View.GONE);
+        _pauseButton.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void preparing() {
+        setStatus("загрузка...");
+        _pauseButton.setEnabled(false);
     }
 
     @Override
     public void paused() {
-        _statusView.setText("Status: пауза");
+        //setStatus("");
+        _pauseButton.setVisibility(View.GONE);
+        _playButton.setVisibility(View.VISIBLE);
     }
 
     @Override
-    public void error(String msg) {
-        _statusView.setText("error from player:" + msg);
+    public void setCurrentTrack(String track) {
+        if (track != null) {
+            _statusView.setText(track);
+        } else {
+            _statusView.setText("Null track");
+        }
     }
+
+    private  ChillyService _BoundService = null;
+    private Boolean _IsBound = false;
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            _BoundService = ((ChillyService.ChillyBinder)service).getService();
+            //Toast.makeText(getApplicationContext(), "Chilly connected", Toast.LENGTH_SHORT).show();
+            _BoundService.initPlayback(MyActivity.this);
+            _BoundService.setDelegate(MyActivity.this);
+        }
+
+        public void onServiceDisconnected(ComponentName className) {
+            _BoundService = null;
+        }
+    };
+
+    void doBindService() {
+        bindService(new Intent(MyActivity.this,
+                ChillyService.class), mConnection, Context.BIND_AUTO_CREATE);
+        _IsBound = true;
+    }
+
+    void doUnbindService() {
+        if (_IsBound) {
+            unbindService(mConnection);
+            _IsBound = false;
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        doUnbindService();
+        super.onDestroy();
+    }
+
 }

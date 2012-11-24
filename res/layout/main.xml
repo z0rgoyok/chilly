@@ -1,23 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
               android:layout_width="fill_parent"
               android:layout_height="fill_parent"
         >
-    <LinearLayout
+    <ImageView
+            android:id="@+id/imageView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true" android:src="@drawable/background"/>
+
+    <RelativeLayout
             android:orientation="vertical"
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent">
-        <Button
+            android:layout_height="fill_parent"
+            android:layout_alignParentBottom="true"
+            >
+        <LinearLayout android:layout_centerHorizontal="true" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                      android:layout_gravity="center"
+                      android:layout_alignParentBottom="true"
+                      android:orientation="vertical" android:paddingBottom="0dp" android:layout_marginBottom="100dp">
+         <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Status: "
+                    android:layout_gravity="center" android:id="@+id/lblStatus" android:textSize="24dp"
+                 android:gravity="center"
+                 android:layout_marginLeft="50dp"
+                 android:layout_marginRight="50dp" android:textColor="#ffffff"/>
+        <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Pause"
-                android:layout_gravity="center" android:minWidth="200dp" android:id="@id/btnPlay"/>
-        <TextView
+                android:id="@+id/imgPause" android:layout_gravity="center" android:baselineAlignBottom="false"
+                android:background="@drawable/pause" android:visibility="visible" android:clickable="false"
+
+                />
+        <ImageButton
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Status: "
-                android:layout_gravity="center" android:id="@id/lblStatus"/>
-    </LinearLayout>
-</LinearLayout>
+                android:layout_height="wrap_content"   android:layout_gravity="center"
+                android:id="@+id/imgPlay" android:background="@drawable/play" android:visibility="gone"/>
+        </LinearLayout>
+    </RelativeLayout>
+</RelativeLayout>
 
