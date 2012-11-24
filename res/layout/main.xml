@@ -14,11 +14,14 @@
                       android:layout_gravity="center"
                       android:layout_alignParentBottom="true"
                       android:orientation="vertical" android:paddingBottom="0dp" android:layout_marginBottom="100dp">
-            <TextView
+         <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Status: "
-                    android:layout_gravity="center" android:id="@+id/lblStatus" android:textSize="24dp"/>
+                    android:layout_gravity="center" android:id="@+id/lblStatus" android:textSize="24dp"
+                 android:gravity="center"
+                 android:layout_marginLeft="50dp"
+                 android:layout_marginRight="50dp"/>
         <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

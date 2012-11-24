@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
@@ -94,10 +95,9 @@ public class ChillyService extends Service implements MediaPlayer.OnPreparedList
         _isPreparing = false;
         if (!_player.isPlaying()) {
             play();
+            _songUpdater.run();
         }
     }
-
-
 
     public void initPlayback(ChillyDelegate delegate) {
 
@@ -118,13 +118,11 @@ public class ChillyService extends Service implements MediaPlayer.OnPreparedList
 
             _delegate.preparing();
         }
-
     }
 
     private class DownloadHtmlTask extends AsyncTask<Void, Void, Void>
     {
         private String currentTrack;
-
         private String getCurrentTrack() {
 
             HttpClient httpClient = new DefaultHttpClient();
@@ -145,21 +143,20 @@ public class ChillyService extends Service implements MediaPlayer.OnPreparedList
                 return resultString;
 
             } catch (IOException e) {
+                e.printStackTrace();
             }
             return null;
         }
+
         @Override
         protected Void doInBackground(Void... voids) {
             String html = getCurrentTrack();
-
             int findIndex = html.indexOf("http://www.chilloungestation.com</a></td>");
             if (findIndex > -1) {
 
                 String findStr = "streamdata";
                 findIndex = html.indexOf(findStr, findIndex) + findStr.length()+2;
-
                 html = html.substring(findIndex);
-
                 currentTrack = html.substring(0, html.indexOf("<"));
             }
             return null;
@@ -174,49 +171,25 @@ public class ChillyService extends Service implements MediaPlayer.OnPreparedList
         }
     }
 
+    private Handler updateSongHandler = new Handler();
+    Runnable _songUpdater = new Runnable() {
+        @Override
+        public void run() {
+            new DownloadHtmlTask().execute();
+            updateSongHandler.postDelayed(_songUpdater, 40L * 1000);
+        }
+    };
+
     public class ChillyBinder extends Binder {
         public ChillyService getService() {
             return ChillyService.this;
         }
     }
 
+
     @Override
     public void onCreate() {
         _nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-
-
-        Timer currentTrackTimer = new Timer();
-        currentTrackTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                new DownloadHtmlTask().execute();
-            }
-        }, 0L, 30L * 1000);
-
-
-        //showNotification();
-
-        //Toast.makeText(this, String.valueOf(new Random().nextInt()), Toast.LENGTH_SHORT).show();
-    }
-
-    private void showNotification() {
-        // In this sample, we'll use the same text for the ticker and the expanded notification
-        CharSequence text = "ChillyService started";
-
-        // Set the icon, scrolling text and timestamp
-        Notification notification = new Notification(R.drawable.ic_menu_search, text,
-                System.currentTimeMillis());
-
-        // The PendingIntent to launch our activity if the user selects this notification
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-                new Intent(this, MyActivity.class), 0);
-
-        // Set the info for the views that show in the notification panel.
-        notification.setLatestEventInfo(this, "ChillyService label",
-                text, contentIntent);
-
-        // Send the notification.
-        _nm.notify(NOTIFICATION, notification);
     }
 
     @Override
@@ -228,8 +201,6 @@ public class ChillyService extends Service implements MediaPlayer.OnPreparedList
     @Override
     public void onDestroy() {
         _nm.cancel(NOTIFICATION);
-
-        //Toast.makeText(this, "ChillyService stopped", Toast.LENGTH_SHORT).show();
     }
 
     @Override
