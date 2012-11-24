@@ -6,15 +6,27 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.media.MediaPlayer;
+import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 import com.zabozhanov.chilly.MyActivity;
 import com.zabozhanov.chilly.R;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created with IntelliJ IDEA.
@@ -27,6 +39,8 @@ import java.util.Random;
 public class ChillyService extends Service implements MediaPlayer.OnPreparedListener {
 
     private String _stream_url = "http://www.chilloungestation.com:8000/chilloungestation-playlist";
+    private final String _pageUrl = "http://www.chilloungestation.com:8000/";
+
     private MediaPlayer _player = null;
     private int NOTIFICATION = 1234;
     private NotificationManager _nm;
@@ -107,8 +121,58 @@ public class ChillyService extends Service implements MediaPlayer.OnPreparedList
 
     }
 
+    private class DownloadHtmlTask extends AsyncTask<Void, Void, Void>
+    {
+        private String currentTrack;
 
+        private String getCurrentTrack() {
 
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpGet httpGet = new HttpGet(_pageUrl);
+            try {
+                HttpResponse response = httpClient.execute(httpGet);
+                HttpEntity httpEntity = response.getEntity();
+                InputStream inputStream = httpEntity.getContent();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "utf-8"));
+                StringBuilder sb = new StringBuilder();
+                String line = null;
+                while ((line = reader.readLine()) != null) {
+                    sb.append(line + "\n");
+                }
+                String resultString = sb.toString();
+
+                inputStream.close();
+                return resultString;
+
+            } catch (IOException e) {
+            }
+            return null;
+        }
+        @Override
+        protected Void doInBackground(Void... voids) {
+            String html = getCurrentTrack();
+
+            int findIndex = html.indexOf("http://www.chilloungestation.com</a></td>");
+            if (findIndex > -1) {
+
+                String findStr = "streamdata";
+                findIndex = html.indexOf(findStr, findIndex) + findStr.length()+2;
+
+                html = html.substring(findIndex);
+
+                currentTrack = html.substring(0, html.indexOf("<"));
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            if (currentTrack != null) {
+                ChillyService.this._delegate.setCurrentTrack(currentTrack);
+            }
+            currentTrack = null;
+        }
+    }
 
     public class ChillyBinder extends Binder {
         public ChillyService getService() {
@@ -119,6 +183,16 @@ public class ChillyService extends Service implements MediaPlayer.OnPreparedList
     @Override
     public void onCreate() {
         _nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+
+        Timer currentTrackTimer = new Timer();
+        currentTrackTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                new DownloadHtmlTask().execute();
+            }
+        }, 0L, 30L * 1000);
+
 
         //showNotification();
 

@@ -88,7 +88,7 @@ public class MyActivity extends Activity implements View.OnClickListener, Chilly
 
     @Override
     public void playing() {
-        setStatus("");
+        //setStatus("");
         _pauseButton.setEnabled(true);
         _playButton.setVisibility(View.GONE);
         _pauseButton.setVisibility(View.VISIBLE);
@@ -102,9 +102,18 @@ public class MyActivity extends Activity implements View.OnClickListener, Chilly
 
     @Override
     public void paused() {
-        setStatus("");
+        //setStatus("");
         _pauseButton.setVisibility(View.GONE);
         _playButton.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void setCurrentTrack(String track) {
+        if (track != null) {
+            _statusView.setText(track);
+        } else {
+            _statusView.setText("Null track");
+        }
     }
 
     private  ChillyService _BoundService = null;

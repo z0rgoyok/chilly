@@ -11,4 +11,5 @@ public interface ChillyDelegate {
     void playing();
     void preparing();
     void paused();
+    void setCurrentTrack(String track);
 }
