@@ -46,8 +46,9 @@ public class ChillyService extends Service implements MediaPlayer.OnPreparedList
     private int NOTIFICATION = 1234;
     private NotificationManager _nm;
 
-    private Boolean _paused = false;
+    private String _currentTrack;
 
+    private Boolean _paused = false;
     private Boolean _isPreparing = true;
 
     private ChillyDelegate _delegate = null;
@@ -115,14 +116,14 @@ public class ChillyService extends Service implements MediaPlayer.OnPreparedList
             _player.setOnPreparedListener(this);
             _player.prepareAsync();
         } else {
-
-            _delegate.preparing();
+            _delegate.setCurrentTrack(_currentTrack);
         }
     }
 
     private class DownloadHtmlTask extends AsyncTask<Void, Void, Void>
     {
-        private String currentTrack;
+        private String grabbedTrackName;
+
         private String getCurrentTrack() {
 
             HttpClient httpClient = new DefaultHttpClient();
@@ -157,17 +158,20 @@ public class ChillyService extends Service implements MediaPlayer.OnPreparedList
                 String findStr = "streamdata";
                 findIndex = html.indexOf(findStr, findIndex) + findStr.length()+2;
                 html = html.substring(findIndex);
-                currentTrack = html.substring(0, html.indexOf("<"));
+                grabbedTrackName = html.substring(0, html.indexOf("<"));
             }
             return null;
         }
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            if (currentTrack != null) {
-                ChillyService.this._delegate.setCurrentTrack(currentTrack);
+
+            if (grabbedTrackName == null) {
+                grabbedTrackName = "No track info";
             }
-            currentTrack = null;
+            ChillyService.this._currentTrack = grabbedTrackName;
+            grabbedTrackName = null;
+            ChillyService.this._delegate.setCurrentTrack(ChillyService.this._currentTrack);
         }
     }
 

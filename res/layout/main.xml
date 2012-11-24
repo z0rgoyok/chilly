@@ -4,6 +4,13 @@
               android:layout_width="fill_parent"
               android:layout_height="fill_parent"
         >
+    <ImageView
+            android:id="@+id/imageView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true" android:src="@drawable/background"/>
+
     <RelativeLayout
             android:orientation="vertical"
             android:layout_width="fill_parent"
@@ -21,7 +28,7 @@
                     android:layout_gravity="center" android:id="@+id/lblStatus" android:textSize="24dp"
                  android:gravity="center"
                  android:layout_marginLeft="50dp"
-                 android:layout_marginRight="50dp"/>
+                 android:layout_marginRight="50dp" android:textColor="#ffffff"/>
         <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -31,7 +38,7 @@
                 />
         <ImageButton
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="wrap_content"   android:layout_gravity="center"
                 android:id="@+id/imgPlay" android:background="@drawable/play" android:visibility="gone"/>
         </LinearLayout>
     </RelativeLayout>
