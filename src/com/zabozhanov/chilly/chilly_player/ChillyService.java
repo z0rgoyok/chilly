@@ -176,7 +176,7 @@ public class ChillyService extends Service implements MediaPlayer.OnPreparedList
         @Override
         public void run() {
             new DownloadHtmlTask().execute();
-            updateSongHandler.postDelayed(_songUpdater, 40L * 1000);
+            updateSongHandler.postDelayed(_songUpdater, 10L * 1000);
         }
     };
 
