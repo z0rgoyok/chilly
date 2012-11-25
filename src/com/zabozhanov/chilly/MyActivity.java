@@ -46,7 +46,6 @@ public class MyActivity extends Activity implements View.OnClickListener, Chilly
         _statusView = (TextView) findViewById(R.id.lblStatus);
 
         startService(new Intent(this, ChillyService.class));
-
         doBindService();
     }
 

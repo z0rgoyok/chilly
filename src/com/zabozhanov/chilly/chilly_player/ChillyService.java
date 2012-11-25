@@ -72,7 +72,7 @@ public class ChillyService extends Service implements MediaPlayer.OnPreparedList
             return;
         }
 
-        if (_player.isPlaying()) {
+        if (!_paused) {
             _delegate.playing();
         } else {
             _delegate.paused();
